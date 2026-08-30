@@ -171,7 +171,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hax-log-${{ github.run_id }}
-          path: ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/hax.log
+          path: |
+            ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/hax.log
+            ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/logs/
+            ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/sing-box.log
+            ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/reg_state.json
+            ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/${{ env.MONITOR_DIR }}
           retention-days: 7
           if-no-files-found: warn
 
