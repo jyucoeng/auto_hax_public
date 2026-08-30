@@ -45,7 +45,7 @@ jobs:
       # 注意：cron-job.org 只负责“唤醒”本工作流（到点调 dispatch），真正到点创建由脚本内置
       # 调度器按此值执行。所以本值必须与 cron-job.org 的触发时间点保持一致！
       # 建议 cron-job.org 在每个时间点前 ~5 分钟触发，给脚本留 HUS_CRON_PREP_AHEAD_S 预填时间。
-      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,17:28,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
+      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,17:37,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
       HUS_CRON_WINDOW_S: "600"                 # 到点后持续抢机窗口（秒，默认10分钟）
       HUS_CRON_PREP_AHEAD_S: "240"             # 提前预选账号/区域时间（秒，需 < CF Turnstile token 有效期~300s）
       HUS_CRON_PREFILL_AHEAD_S: "180"          # 提前预填表单时间（秒，到点只点提交）；建议 180(3分钟)，< CF Turnstile token 有效期~300s
@@ -100,22 +100,18 @@ jobs:
             libnss3 libgbm1 libxkbcommon0 libgtk-3-0 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libpango-1.0-0 libcairo2 libxshmfence1
-          # 安装 Google Chrome stable（snap 版 chromium 在 Actions 容器内不稳定，换官方 deb）
-          if ! command -v google-chrome-stable >/dev/null 2>&1; then
-            wget -qO /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-            sudo apt-get install -y /tmp/google-chrome.deb
-            rm -f /tmp/google-chrome.deb
-          fi
-          # 优先用真实二进制绝对路径（避免 wrapper 解析问题）
-          # Google Chrome deb 的真实 ELF 二进制是 /opt/google/chrome/chrome（google-chrome/google-chrome-stable 均为 wrapper）
-          if [ -x /opt/google/chrome/chrome ]; then
-            echo "CHROME_PATH=/opt/google/chrome/chrome" >> "$GITHUB_ENV"
-          elif [ -x /opt/google/chrome/google-chrome ]; then
-            echo "CHROME_PATH=/opt/google/chrome/google-chrome" >> "$GITHUB_ENV"
+          # 改用 snap chromium（14:39 直连+snap chromium 验证可完整跑通登录创建；
+          # Google Chrome 151 上 hax 登录页不渲染 telegram widget，故回退 snap chromium）
+          if [ -x /snap/bin/chromium ]; then
+            echo "CHROME_PATH=/snap/bin/chromium" >> "$GITHUB_ENV"
+          elif command -v chromium-browser >/dev/null 2>&1; then
+            echo "CHROME_PATH=$(command -v chromium-browser)" >> "$GITHUB_ENV"
+          elif command -v chromium >/dev/null 2>&1; then
+            echo "CHROME_PATH=$(command -v chromium)" >> "$GITHUB_ENV"
           else
-            echo "CHROME_PATH=$(command -v google-chrome-stable)" >> "$GITHUB_ENV"
+            echo "CHROME_PATH=" >> "$GITHUB_ENV"
           fi
-          google-chrome-stable --version
+          echo "最终 CHROME_PATH=${CHROME_PATH:-（自动探测）}"
 
       - name: 安装 Python 依赖
         working-directory: ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}
