@@ -35,7 +35,7 @@ jobs:
       HUS_DATACENTER: ""                       # 默认数据中心（留空=自动选第一个可用），优先级低于 VPS_SPECS 指定
       MAX_LOGIN_RETRIES: "1"                   # 登录失败最大重试次数
       DEBUG_FLAG: "0"                          # 调试模式（1=打印更多细节）
-      HUS_HEADLESS: "false"                    # 浏览器是否无头（false=有头，GitHub Actions 用 Xvfb 虚拟屏）
+      HUS_HEADLESS: "true"                     # 浏览器是否无头（true=无头，容器里更稳，避开Xvfb渲染问题）
       CHROME_PATH: ""                          # 浏览器路径；留空=自动探测。Linux 由「安装系统依赖」步骤自动设为 /usr/bin/google-chrome-stable；macOS 本机可填实际路径
 
       # ===== 抢机策略 =====
@@ -45,7 +45,7 @@ jobs:
       # 注意：cron-job.org 只负责“唤醒”本工作流（到点调 dispatch），真正到点创建由脚本内置
       # 调度器按此值执行。所以本值必须与 cron-job.org 的触发时间点保持一致！
       # 建议 cron-job.org 在每个时间点前 ~5 分钟触发，给脚本留 HUS_CRON_PREP_AHEAD_S 预填时间。
-      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,15:50,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
+      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,15:55,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
       HUS_CRON_WINDOW_S: "600"                 # 到点后持续抢机窗口（秒，默认10分钟）
       HUS_CRON_PREP_AHEAD_S: "240"             # 提前预选账号/区域时间（秒，需 < CF Turnstile token 有效期~300s）
       HUS_CRON_PREFILL_AHEAD_S: "180"          # 提前预填表单时间（秒，到点只点提交）；建议 180(3分钟)，< CF Turnstile token 有效期~300s
