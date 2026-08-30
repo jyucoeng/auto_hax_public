@@ -177,21 +177,6 @@ jobs:
             echo "本地截图已清理"
           fi
 
-      - name: 提交执行时间
-        if: always()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p ${{ env.PROJECT_DIR }} && echo "$(date +'%Y-%m-%d %H:%M:%S')" > ${{ env.PROJECT_DIR }}/time.txt
-          git add ${{ env.PROJECT_DIR }}/time.txt 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "无变化，无需提交"
-          else
-            git commit -m "更新时间文件: $(date +'%Y-%m-%d %H:%M:%S')"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
-
       - name: 清理旧运行
         uses: Mattraks/delete-workflow-runs@v2
         with:
