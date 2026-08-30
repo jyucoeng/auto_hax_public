@@ -34,7 +34,7 @@ jobs:
       HUS_OS: Ubuntu 24                        # 默认操作系统（优先级低于 VPS_SPECS 指定的），如 Ubuntu 22/24、Debian 12
       HUS_DATACENTER: ""                       # 默认数据中心（留空=自动选第一个可用），优先级低于 VPS_SPECS 指定
       MAX_LOGIN_RETRIES: "1"                   # 登录失败最大重试次数
-      DEBUG_FLAG: "1"                          # 调试模式（1=打印更多细节）
+      DEBUG_FLAG: "0"                          # 调试模式（1=打印更多细节）
       HUS_HEADLESS: "false"                    # 浏览器是否无头（false=有头，GitHub Actions 用 Xvfb 虚拟屏）
       CHROME_PATH: ""                          # Chromium 路径（Linux 留空自动探测；macOS 本机填实际路径）
 
