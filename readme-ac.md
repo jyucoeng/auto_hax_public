@@ -1,4 +1,4 @@
-# Auto HAX 使用说明（给朋友 / acquaintances）
+# Auto HUX 使用说明（给朋友 / acquaintances）
 
 自动在 [hus.co.id](https://hus.co.id) 抢 / 创建 VPS 的工具。你**不需要改代码**，只用自己的 GitHub Actions 跑作者维护的私有代码库即可。
 
@@ -9,7 +9,7 @@
 | 组件 | 说明 | 你是否需要 |
 |------|------|-----------|
 | 私有代码库 `jyucoeng/auto_hax` | `hus_create_vps.py` 等核心脚本 | 只申请**只读**权限 |
-| 你自己的公开库（工作流） | 只放 `.github/workflows/hax_renew.yml` | 必需，直接用 `jyucoeng/auto_hax_public` 或复刻一份 |
+| 你自己的公开库（工作流） | 只放 `.github/workflows/hax_renew.yml` | 从 `jyucoeng/auto_hax_public` 复刻一份 |
 | 你的 GitHub Secrets | 你自己的账号 / 代理等凭据 | 必需，**仅在你自己库里，别人看不到** |
 | cron-job.org | 按你北京时间抢机点准点触发工作流 | 推荐（比 GitHub 原生定时更准时，不被排队） |
 
@@ -47,10 +47,10 @@
 | Secret 名 | 内容 | 必填 |
 |-----------|------|------|
 | `PRIVATE_REPO_TOKEN` | 对 `jyucoeng/auto_hax` 有读权限的 PAT（classic，需 `repo` 或 fine-grained `Contents:read`） | ✅ |
-| `HUS_BATCH` | 账号串：`phone,tg_bot_token,tg_chat_id[,tg_api_id,tg_api_hash,tg_session]`；多账号用 `;` 分隔 | ✅ |
-| `HUS_TG_API_ID` | 你的 TG App API ID | ✅ |
-| `HUS_TG_API_HASH` | 你的 TG App API Hash | ✅ |
-| `HUS_TG_SESSION` | 第 3 步生成的 Telethon session 字符串 | ✅ |
+| `HUS_BATCH` | 账号串：`phone,tg_bot_token,tg_chat_id[,tg_api_id,tg_api_hash,tg_session]`；多账号用 `;` 分隔。**推荐填全 6 项**（后三项即 TG 用户会话），这样登录确认自带凭据，无需下面单独的全局 Secret | ✅ |
+| `HUS_TG_API_ID` | 你的 TG App API ID。**仅当** `HUS_BATCH` 里某账号没带自己的 `tg_api_id` 时才需填（作为回退） | ⬜ |
+| `HUS_TG_API_HASH` | 你的 TG App API Hash。同上，仅作回退 | ⬜ |
+| `HUS_TG_SESSION` | 第 3 步生成的 Telethon session 字符串。同上，仅作回退 | ⬜ |
 | `HUS_VPS_SPECS` | 可选，`phone,datacenter,os`；多账号 `;` 分隔 | ⬜ |
 | `HUS_TG_PROXY` | 可选，TG 代理 `socks5://...` | ⬜ |
 | `HAX_HY2_PROXY_URL` | 可选，浏览器 sing-box 代理配置（JSON 文本） | ⬜ |
