@@ -36,7 +36,7 @@ jobs:
       MAX_LOGIN_RETRIES: "1"                   # 登录失败最大重试次数
       DEBUG_FLAG: "0"                          # 调试模式（1=打印更多细节）
       HUS_HEADLESS: "false"                    # 浏览器是否无头（false=有头，GitHub Actions 用 Xvfb 虚拟屏）
-      CHROME_PATH: ""                          # Chromium 路径（Linux 留空自动探测；macOS 本机填实际路径）
+      CHROME_PATH: ""                          # 浏览器路径；留空=自动探测。Linux 由「安装系统依赖」步骤自动设为 /usr/bin/google-chrome-stable；macOS 本机可填实际路径
 
       # ===== 抢机策略 =====
       VPS_REGIONS_WANT: US-OpenVZ-3,US-OpenVZ-2,EU-1   # 期望抢的区域白名单（逗号分隔，子串匹配、不区分大小写）；留空=不限区域
@@ -45,7 +45,7 @@ jobs:
       # 注意：cron-job.org 只负责“唤醒”本工作流（到点调 dispatch），真正到点创建由脚本内置
       # 调度器按此值执行。所以本值必须与 cron-job.org 的触发时间点保持一致！
       # 建议 cron-job.org 在每个时间点前 ~5 分钟触发，给脚本留 HUS_CRON_PREP_AHEAD_S 预填时间。
-      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,15:21,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
+      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,15:28,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
       HUS_CRON_WINDOW_S: "600"                 # 到点后持续抢机窗口（秒，默认10分钟）
       HUS_CRON_PREP_AHEAD_S: "240"             # 提前预选账号/区域时间（秒，需 < CF Turnstile token 有效期~300s）
       HUS_CRON_PREFILL_AHEAD_S: "180"          # 提前预填表单时间（秒，到点只点提交）；建议 180(3分钟)，< CF Turnstile token 有效期~300s
@@ -96,10 +96,18 @@ jobs:
       - name: 安装系统依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb chromium unzip curl wget jq ca-certificates \
+          sudo apt-get install -y xvfb unzip curl wget jq ca-certificates \
             libnss3 libgbm1 libxkbcommon0 libgtk-3-0 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libpango-1.0-0 libcairo2 libxshmfence1
+          # 安装 Google Chrome stable（snap 版 chromium 在 Actions 容器内不稳定，换官方 deb）
+          if ! command -v google-chrome-stable >/dev/null 2>&1; then
+            wget -qO /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo apt-get install -y /tmp/google-chrome.deb
+            rm -f /tmp/google-chrome.deb
+          fi
+          echo "CHROME_PATH=$(command -v google-chrome-stable)" >> "$GITHUB_ENV"
+          google-chrome-stable --version
 
       - name: 安装 Python 依赖
         working-directory: ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}
