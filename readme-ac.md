@@ -26,9 +26,7 @@
    python3 -c "from telethon.sync import TelegramClient; c=TelelegramClient('tmp',你的API_ID,你的API_HASH); c.start(); print(c.session.save()))"
    ```
    把打印出的长字符串保存好——它和上面的 API ID / Hash 一起，作为 `HUS_BATCH` 每账号的**第 4~6 项**填入（不再有单独的全局 TG Secret）。生成后删除本机产生的 `tmp.session` 文件。
-4. **（可选）代理**：
-   - 浏览器代理：sing-box 配置内容（填 `HAX_HY2_PROXY_URL`）。hus.co.id 若在你网络下被拦，建议配置。
-   - TG 代理：填 `HUS_TG_PROXY`（如 `socks5://127.0.0.1:10808`）。
+4. **（可选）代理**：只配一个 `HAX_HY2_PROXY_URL`（sing-box 代理源，如 hy2/vmess 订阅或配置文本）。工作流会据此生成 sing-box 配置并启动本地 SOCKS5，浏览器(http)与 TG 自动共用该出口，无需再单独配 TG 代理。hus.co.id 若在你网络下被拦，建议配置。
 
 ---
 
@@ -49,9 +47,8 @@
 | `PRIVATE_REPO_TOKEN` | 对 `jyucoeng/auto_hax` 有读权限的 PAT（classic，需 `repo` 或 fine-grained `Contents:read`） | ✅ |
 | `HUS_BATCH` | 账号串：`phone,tg_bot_token,tg_chat_id,tg_api_id,tg_api_hash,tg_session`；多账号用 `;` 分隔。**必须填全 6 项**（后三项即 TG 用户会话，用于登录确认），不再有单独的全局 TG Secret | ✅ |
 | `HUS_VPS_SPECS` | 可选，`phone,datacenter,os`；多账号 `;` 分隔 | ⬜ |
-| `HUS_TG_PROXY` | 可选，TG 代理 `socks5://...` | ⬜ |
-| `HAX_HY2_PROXY_URL` | 可选，浏览器 sing-box 代理配置（JSON 文本） | ⬜ |
-| `SOCKS_PORT` | 可选，代理端口，默认 `10808` | ⬜ |
+| `HAX_HY2_PROXY_URL` | 可选，sing-box 代理源（hy2/vmess/trojan 等订阅或配置文本）。**设了它，浏览器(http)和 TG 会共用其生成的本地 SOCKS5 出口**，无需再单独配 TG 代理 | ⬜ |
+| `SOCKS_PORT` | 可选，本地 SOCKS5 端口，默认 `10808`，一般不用改 | ⬜ |
 
 > `HUS_BATCH` 若只填前 3 项（phone,token,chat），则 TG 用户会话改用上面单独的 `HUS_TG_*` 三项。
 
