@@ -49,7 +49,7 @@
 | `HUS_VPS_SPECS` | 可选，`phone,datacenter,os`；多账号 `;` 分隔 | ⬜ |
 | `HAX_HY2_PROXY_URL` | 可选，sing-box 代理源（hy2/vmess/trojan 等订阅或配置文本）。**设了它，浏览器(http)和 TG 会共用其生成的本地 SOCKS5 出口**，无需再单独配 TG 代理 | ⬜ |
 | `SOCKS_PORT` | 可选，本地 SOCKS5 端口，默认 `10808`，一般不用改 | ⬜ |
-| `HUS_STATE_SALT` | 可选，reg_state.json key 的加盐因子；设置后即使状态文件泄露也无法反解手机号。本地用 `state_lookup.py` 查看时需提供**同一盐**。日志中只显示「已加盐+盐长度」，绝不打印盐原文 | ⬜ |
+| `HUS_STATE_SALT` | 可选，reg_state.json key 的加盐因子；设置后即使状态文件泄露也无法反解手机号。本地用 `sha256_encode.py` 查看时需提供**同一盐**。日志中只显示「已加盐+盐长度」，绝不打印盐原文 | ⬜ |
 
 > `HUS_BATCH` 若只填前 3 项（phone,token,chat），则 TG 用户会话改用上面单独的 `HUS_TG_*` 三项。
 
