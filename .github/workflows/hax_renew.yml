@@ -60,12 +60,12 @@ jobs:
       MONITOR_DIR: output/monitor              # 监控模式转发保存目录
       LOG_FILE: logs/hus_glab.log              # 日志文件名（实时写入，超 5MB 自动滚动）
       LOG_KEEP: "30"                           # 旧日志最多保留个数（负数=不限制）
-      STOCK_KEYWORDS: 库存通知,hax库存通知      # 库存通知识别关键词（逗号分隔，匹配任一即认定）
-      STOCK_GRAB_WINDOW_S: "600"               # 收到库存通知后抢机窗口（秒，超时不再创建）
+      # 以下为创建后状态轮询（cron-monitor 创建时仍会用到）
       SCAN_TIMEOUT: "600"                      # 提交创建后轮询 VPS 状态最长等待（秒，等 ACTIVE/FAILED）
       PENDING_QUIET_SECONDS: "300"             # VPS 为 PENDING 时静默等待（秒）后再查一次状态
-      POLL_INTERVAL: "120"                     # 轮询线每轮遍历完所有待抢账号后的间隔（秒，±30s 抖动）
       NO_STOCK_REFRESH_S: "5"                  # DC 无库存时刷新创建页重新检查的间隔（秒）
+      # 注：STOCK_KEYWORDS / STOCK_GRAB_WINDOW_S / POLL_INTERVAL 属频道库存通知线，
+      # 本工作流 HUS_DISABLE_CHANNEL=1 不启用频道监听，故不在此配置（脚本用内置默认值）。
 
       # ===== 账号 / TG 凭据（敏感，来自 GitHub Secrets，覆盖 hus_config.txt）=====
       # 格式：phone,tg_bot_token,tg_chat_id[,tg_api_id,tg_api_hash,tg_session]（分号分隔多账号）
