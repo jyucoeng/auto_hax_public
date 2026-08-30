@@ -1,18 +1,7 @@
 name: 🔄 Hax Auto Renew
 
 on:
-  # GitHub 原生定时（UTC）。北京时间 = UTC+8，各时间点提前 5 分钟拉起，
-  # 配合 monitor 模式的 HUS_CRON_PREP_AHEAD_S / HUS_CRON_WINDOW_S 覆盖整个抢机窗口。
-  # 对应 hus_config.txt 的 HUS_CRON_TIMES：01:00,03:00,04:00,05:00,08:00,18:00,19:00,20:29
-  schedule:
-    - cron: '55 16 * * *'   # 北京时间 01:00
-    - cron: '55 18 * * *'   # 北京时间 03:00
-    - cron: '55 19 * * *'   # 北京时间 04:00
-    - cron: '55 20 * * *'   # 北京时间 05:00
-    - cron: '55 23 * * *'   # 北京时间 08:00
-    - cron: '55 09 * * *'   # 北京时间 18:00
-    - cron: '55 10 * * *'   # 北京时间 19:00
-    - cron: '24 12 * * *'   # 北京时间 20:29
+  # 仅由外部（cron-job.org）通过 workflow_dispatch 准点拉起，不依赖 GitHub 原生 schedule
   workflow_dispatch:
 
 permissions:
@@ -36,6 +25,8 @@ jobs:
       # 抢机窗口相关（与 hus_config.txt 保持一致即可，仅用于控制本 workflow 运行时长）
       HUS_CRON_PREP_AHEAD_S: "240"
       HUS_CRON_WINDOW_S: "600"
+      # 关闭频道监听，仅保留 HUS_CRON_TIMES 定时抢机
+      HUS_DISABLE_CHANNEL: "1"
       SCREENSHOT_DIR: output/screenshots
 
     steps:
