@@ -16,18 +16,58 @@ jobs:
       group: Hax_Renew
       cancel-in-progress: false
     env:
-      # 私有仓库（含 hus_create_vps.py / hus_config.txt 等）
+      # ===== 仓库 / 路径 =====
       PRIVATE_REPO: jyucoeng/auto_hax
       PROJECT_DIR: hax
       # sing-box 代理（留空=直连）。monitor 模式下浏览器经 all_proxy 走该 SOCKS5
       PROXY_CONTENT: ${{ secrets.HAX_HY2_PROXY_URL }}
       SOCKS_PORT: ${{ secrets.SOCKS_PORT || '10808' }}
-      # 抢机窗口相关（与 hus_config.txt 保持一致即可，仅用于控制本 workflow 运行时长）
-      HUS_CRON_PREP_AHEAD_S: "240"
-      HUS_CRON_WINDOW_S: "600"
-      # 关闭频道监听，仅保留 HUS_CRON_TIMES 定时抢机功能
+
+      # ===== 运行模式 =====
+      HUS_MODE: monitor
       HUS_DISABLE_CHANNEL: "1"
+      HAX_MONITOR_CHANNEL: haxMonitor
+
+      # ===== 创建参数（非敏感，可按需调整）=====
+      HUS_OS: Ubuntu 24
+      HUS_DATACENTER: ""
+      HUS_MAX_WORKERS: "3"
+      MAX_CREATE_RETRIES: "1"
+      MAX_LOGIN_RETRIES: "1"
+      DEBUG_FLAG: "0"
+      HUS_HEADLESS: "false"
+      # Linux 上留空让脚本自动探测系统 chromium（macOS 本机再填实际路径）
+      CHROME_PATH: ""
+
+      # ===== 抢机策略 =====
+      VPS_REGIONS_WANT: US-OpenVZ-3,US-OpenVZ-2,EU-1
+
+      # ===== 定时抢机（北京时间 UTC+8）=====
+      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,18:00,19:00,20:29
+      HUS_CRON_WINDOW_S: "600"
+      HUS_CRON_PREP_AHEAD_S: "240"
+      HUS_CRON_PREFILL_AHEAD_S: "90"
+
+      # ===== 状态 / 目录 / 日志 =====
+      REG_STATE_FILE: reg_state.json
       SCREENSHOT_DIR: output/screenshots
+      MONITOR_DIR: output/monitor
+      LOG_FILE: logs/hus_glab.log
+      LOG_KEEP: "30"
+      STOCK_KEYWORDS: 库存通知,hax库存通知
+      STOCK_GRAB_WINDOW_S: "600"
+      SCAN_TIMEOUT: "600"
+      PENDING_QUIET_SECONDS: "300"
+      POLL_INTERVAL: "120"
+      NO_STOCK_REFRESH_S: "5"
+
+      # ===== 账号 / TG 凭据（敏感，来自 GitHub Secrets，覆盖 hus_config.txt）=====
+      HUS_BATCH: ${{ secrets.HUS_BATCH }}
+      VPS_SPECS: ${{ secrets.HUS_VPS_SPECS }}
+      TG_API_ID: ${{ secrets.HUS_TG_API_ID }}
+      TG_API_HASH: ${{ secrets.HUS_TG_API_HASH }}
+      TG_SESSION: ${{ secrets.HUS_TG_SESSION }}
+      TG_PROXY: ${{ secrets.HUS_TG_PROXY }}
 
     steps:
       - name: 检出公开仓库
