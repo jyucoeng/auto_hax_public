@@ -21,11 +21,11 @@
 
 1. **hus.co.id 账号**：手机号（格式 `+国家码-号码`，如 `+44-7386113027`）。
 2. **Telegram Bot**：用 [@BotFather](https://t.me/BotFather) 创建一个，拿到 `Bot Token` 和你的 `chat_id`（给自己发 `/start` 后可用 [@userinfobot](https://t.me/userinfobot) 查 chat_id）。
-3. **Telegram 用户会话**（用于登录确认 / 转发通知）：去 <https://my.telegram.org> 申请 `API ID` / `API Hash`，然后用本机生成一次 session 字符串：
+3. **Telegram 用户会话**（用于 HAX 登录确认）：去 <https://my.telegram.org> 申请 `API ID` / `API Hash`，然后用本机生成一次 session 字符串：
    ```bash
-   python3 -c "from telethon.sync import TelegramClient; c=TelegramClient('tmp',你的API_ID,你的API_HASH); c.start(); print(c.session.save()))"
+   python3 -c "from telethon.sync import TelegramClient; c=TelelegramClient('tmp',你的API_ID,你的API_HASH); c.start(); print(c.session.save()))"
    ```
-   把打印出的长字符串保存好（这就是 `HUS_TG_SESSION`）。生成后删除本机产生的 `tmp.session` 文件。
+   把打印出的长字符串保存好——它和上面的 API ID / Hash 一起，作为 `HUS_BATCH` 每账号的**第 4~6 项**填入（不再有单独的全局 TG Secret）。生成后删除本机产生的 `tmp.session` 文件。
 4. **（可选）代理**：
    - 浏览器代理：sing-box 配置内容（填 `HAX_HY2_PROXY_URL`）。hus.co.id 若在你网络下被拦，建议配置。
    - TG 代理：填 `HUS_TG_PROXY`（如 `socks5://127.0.0.1:10808`）。
@@ -47,10 +47,7 @@
 | Secret 名 | 内容 | 必填 |
 |-----------|------|------|
 | `PRIVATE_REPO_TOKEN` | 对 `jyucoeng/auto_hax` 有读权限的 PAT（classic，需 `repo` 或 fine-grained `Contents:read`） | ✅ |
-| `HUS_BATCH` | 账号串：`phone,tg_bot_token,tg_chat_id[,tg_api_id,tg_api_hash,tg_session]`；多账号用 `;` 分隔。**推荐填全 6 项**（后三项即 TG 用户会话），这样登录确认自带凭据，无需下面单独的全局 Secret | ✅ |
-| `HUS_TG_API_ID` | 你的 TG App API ID。**仅当** `HUS_BATCH` 里某账号没带自己的 `tg_api_id` 时才需填（作为回退） | ⬜ |
-| `HUS_TG_API_HASH` | 你的 TG App API Hash。同上，仅作回退 | ⬜ |
-| `HUS_TG_SESSION` | 第 3 步生成的 Telethon session 字符串。同上，仅作回退 | ⬜ |
+| `HUS_BATCH` | 账号串：`phone,tg_bot_token,tg_chat_id,tg_api_id,tg_api_hash,tg_session`；多账号用 `;` 分隔。**必须填全 6 项**（后三项即 TG 用户会话，用于登录确认），不再有单独的全局 TG Secret | ✅ |
 | `HUS_VPS_SPECS` | 可选，`phone,datacenter,os`；多账号 `;` 分隔 | ⬜ |
 | `HUS_TG_PROXY` | 可选，TG 代理 `socks5://...` | ⬜ |
 | `HAX_HY2_PROXY_URL` | 可选，浏览器 sing-box 代理配置（JSON 文本） | ⬜ |

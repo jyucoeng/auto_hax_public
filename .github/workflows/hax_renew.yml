@@ -62,11 +62,9 @@ jobs:
       NO_STOCK_REFRESH_S: "5"
 
       # ===== 账号 / TG 凭据（敏感，来自 GitHub Secrets，覆盖 hus_config.txt）=====
+      # TG 用户会话凭据（api_id/hash/session）直接放在 HUS_BATCH 每账号的第 4~6 项，无需单独 Secret
       HUS_BATCH: ${{ secrets.HUS_BATCH }}
       VPS_SPECS: ${{ secrets.HUS_VPS_SPECS }}
-      TG_API_ID: ${{ secrets.HUS_TG_API_ID }}
-      TG_API_HASH: ${{ secrets.HUS_TG_API_HASH }}
-      TG_SESSION: ${{ secrets.HUS_TG_SESSION }}
       TG_PROXY: ${{ secrets.HUS_TG_PROXY }}
 
     steps:
