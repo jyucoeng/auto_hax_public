@@ -104,7 +104,7 @@ jobs:
           pip install -r requirements.txt -q
           python3 -c 'import DrissionPage, telethon, requests; print("Python 依赖导入成功")'
 
-      - name: 安装代理（sing-box）
+      - name: 安装代理（sing-box 二进制）
         working-directory: ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}
         run: |
           if [ -z "$PROXY_CONTENT" ]; then
@@ -119,8 +119,7 @@ jobs:
           chmod +x ./sing-box
           rm -rf "/tmp/sing-box-${SB_VER}-linux-amd64" "$ARCHIVE"
           echo "[INFO] sing-box $(./sing-box version | head -1)"
-          python3 gen_singbox_config.py > sing-box_config.json
-          echo "[INFO] 已生成 sing-box_config.json（本地 SOCKS5 端口 ${{ env.SOCKS_PORT }}）"
+          echo "[INFO] 启动/接入由脚本在运行时根据 PROXY_CONTENT 自行决定（直连或代理）"
 
       - name: 随机延迟
         run: |
@@ -132,20 +131,6 @@ jobs:
         working-directory: ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}
         run: |
           set -o pipefail
-          SB_PID=""
-          if [ -n "$PROXY_CONTENT" ]; then
-            echo "[INFO] 启动 sing-box 本地 SOCKS5 代理（端口 ${{ env.SOCKS_PORT }}）"
-            nohup ./sing-box run -c sing-box_config.json > sing-box.log 2>&1 &
-            SB_PID=$!
-            sleep 4
-            export all_proxy="socks5://127.0.0.1:${{ env.SOCKS_PORT }}"
-            export http_proxy="socks5://127.0.0.1:${{ env.SOCKS_PORT }}"
-            export https_proxy="socks5://127.0.0.1:${{ env.SOCKS_PORT }}"
-            export TG_PROXY="socks5://127.0.0.1:${{ env.SOCKS_PORT }}"
-            echo "[INFO] 代理已导出：浏览器(http) 与 TG 均走 $all_proxy"
-          else
-            echo "[INFO] 未配置 PROXY_CONTENT，直连模式"
-          fi
           python3 -u hus_create_vps.py 2>&1 | tee hax.log &
           pid=$!
           duration=$(( ${HUS_CRON_PREP_AHEAD_S:-240} + ${HUS_CRON_WINDOW_S:-600} + 180 ))
@@ -162,7 +147,6 @@ jobs:
             elapsed=$((elapsed + 15))
           done
           wait "$pid" 2>/dev/null || true
-          if [ -n "$SB_PID" ]; then kill "$SB_PID" 2>/dev/null || true; fi
 
       - name: 上传截图
         if: always()
