@@ -17,53 +17,59 @@ jobs:
       cancel-in-progress: false
     env:
       # ===== 仓库 / 路径 =====
-      PRIVATE_REPO: jyucoeng/auto_hax
-      PROJECT_DIR: hax
-      # sing-box 代理（留空=直连）。monitor 模式下浏览器经 all_proxy 走该 SOCKS5
-      PROXY_CONTENT: ${{ secrets.HAX_HY2_PROXY_URL }}
-      SOCKS_PORT: ${{ secrets.SOCKS_PORT || '10808' }}
+      PRIVATE_REPO: jyucoeng/auto_hax          # 私有仓库（含 hus_create_vps.py 脚本），只读 checkout
+      PROJECT_DIR: hax                         # 私有仓库检出到的子目录名（其余步骤据此拼接路径）
+
+      # ===== 代理（可选，来自 Secret；留空=直连）=====
+      # sing-box 代理源（hy2/vmess/trojan 等订阅或配置文本）。
+      # 非空时脚本在运行时调用 gen_singbox_config.py 生成配置并启动本地 SOCKS5，
+      # 浏览器(http) 与 TG 自动共用该出口；为空则全程直连。
+      PROXY_CONTENT: ${{ secrets.HY2_PROXY_URL }}
+      SOCKS_PORT: ${{ secrets.SOCKS_PORT || '50808' }}   # 本地 SOCKS5 端口（sing-box 监听），默认 50808
 
       # ===== 运行模式 =====
-      HUS_MODE: monitor
-      HUS_DISABLE_CHANNEL: "1"
-      HAX_MONITOR_CHANNEL: haxMonitor
+      HUS_MODE: monitor                        # monitor=频道监听+定时抢机（到点/收到通知自动创建 VPS）
+      HUS_DISABLE_CHANNEL: "1"                 # 禁用 haxMonitor 频道监听线程，只跑定时抢机调度（避免频道转发打扰）
+      HAX_MONITOR_CHANNEL: haxMonitor          # 监听的库存通知频道用户名（与 hus_config.txt 对应）
 
       # ===== 创建参数（非敏感，可按需调整）=====
-      HUS_OS: Ubuntu 24
-      HUS_DATACENTER: ""
-      HUS_MAX_WORKERS: "3"
-      MAX_CREATE_RETRIES: "1"
-      MAX_LOGIN_RETRIES: "1"
-      DEBUG_FLAG: "0"
-      HUS_HEADLESS: "false"
-      # Linux 上留空让脚本自动探测系统 chromium（macOS 本机再填实际路径）
-      CHROME_PATH: ""
+      HUS_OS: Ubuntu 24                        # 默认操作系统（优先级低于 VPS_SPECS 指定的），如 Ubuntu 22/24、Debian 12
+      HUS_DATACENTER: ""                       # 默认数据中心（留空=自动选第一个可用），优先级低于 VPS_SPECS 指定
+      HUS_MAX_WORKERS: "3"                     # 同时运行的账号工作线程数（每线程一个浏览器）
+      MAX_CREATE_RETRIES: "1"                  # 单次创建最大重试次数（1=不重试，失败即放弃）
+      MAX_LOGIN_RETRIES: "1"                   # 登录失败最大重试次数
+      DEBUG_FLAG: "0"                          # 调试模式（1=打印更多细节）
+      HUS_HEADLESS: "false"                    # 浏览器是否无头（false=有头，GitHub Actions 用 Xvfb 虚拟屏）
+      CHROME_PATH: ""                          # Chromium 路径（Linux 留空自动探测；macOS 本机填实际路径）
 
       # ===== 抢机策略 =====
-      VPS_REGIONS_WANT: US-OpenVZ-3,US-OpenVZ-2,EU-1
+      VPS_REGIONS_WANT: US-OpenVZ-3,US-OpenVZ-2,EU-1   # 期望抢的区域白名单（逗号分隔，子串匹配、不区分大小写）；留空=不限区域
 
-      # ===== 定时抢机（北京时间 UTC+8）=====
-      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,18:00,19:00,20:29
-      HUS_CRON_WINDOW_S: "600"
-      HUS_CRON_PREP_AHEAD_S: "240"
-      HUS_CRON_PREFILL_AHEAD_S: "90"
+      # ===== 定时抢机（北京时间 UTC+8，HH:MM）=====
+      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
+      HUS_CRON_WINDOW_S: "600"                 # 到点后持续抢机窗口（秒，默认10分钟）
+      HUS_CRON_PREP_AHEAD_S: "240"             # 提前预选账号/区域时间（秒，需 < CF Turnstile token 有效期~300s）
+      HUS_CRON_PREFILL_AHEAD_S: "90"           # 提前预填表单时间（秒，到点只点提交）
 
       # ===== 状态 / 目录 / 日志 =====
-      REG_STATE_FILE: reg_state.json
-      SCREENSHOT_DIR: output/screenshots
-      MONITOR_DIR: output/monitor
-      LOG_FILE: logs/hus_glab.log
-      LOG_KEEP: "30"
-      STOCK_KEYWORDS: 库存通知,hax库存通知
-      STOCK_GRAB_WINDOW_S: "600"
-      SCAN_TIMEOUT: "600"
-      PENDING_QUIET_SECONDS: "300"
-      POLL_INTERVAL: "120"
-      NO_STOCK_REFRESH_S: "5"
+      REG_STATE_FILE: reg_state.json           # 抢机状态文件（记录已抢到的手机号；改路径可重置"已抢"标记）
+      SCREENSHOT_DIR: output/screenshots       # 截图/调试图目录
+      MONITOR_DIR: output/monitor              # 监控模式转发保存目录
+      LOG_FILE: logs/hus_glab.log              # 日志文件名（实时写入，超 5MB 自动滚动）
+      LOG_KEEP: "30"                           # 旧日志最多保留个数（负数=不限制）
+      STOCK_KEYWORDS: 库存通知,hax库存通知      # 库存通知识别关键词（逗号分隔，匹配任一即认定）
+      STOCK_GRAB_WINDOW_S: "600"               # 收到库存通知后抢机窗口（秒，超时不再创建）
+      SCAN_TIMEOUT: "600"                      # 提交创建后轮询 VPS 状态最长等待（秒，等 ACTIVE/FAILED）
+      PENDING_QUIET_SECONDS: "300"             # VPS 为 PENDING 时静默等待（秒）后再查一次状态
+      POLL_INTERVAL: "120"                     # 轮询线每轮遍历完所有待抢账号后的间隔（秒，±30s 抖动）
+      NO_STOCK_REFRESH_S: "5"                  # DC 无库存时刷新创建页重新检查的间隔（秒）
 
       # ===== 账号 / TG 凭据（敏感，来自 GitHub Secrets，覆盖 hus_config.txt）=====
-      # TG 用户会话凭据（api_id/hash/session）直接放在 HUS_BATCH 每账号的第 4~6 项，无需单独 Secret
+      # 格式：phone,tg_bot_token,tg_chat_id[,tg_api_id,tg_api_hash,tg_session]（分号分隔多账号）
+      #   phone=HAX 登录手机号(+国家码-号码)；tg_bot_token=通知 Bot；tg_chat_id=接收通知的 ID
+      #   tg_api_id/hash/session=该账号独立的 Telethon 用户会话（用于监听频道），可省略走全局
       HUS_BATCH: ${{ secrets.HUS_BATCH }}
+      # 可选 VPS 规格：phone,datacenter,os（分号分隔多账号）；指定区域+系统优先于 HUS_DATACENTER/HUS_OS
       VPS_SPECS: ${{ secrets.HUS_VPS_SPECS }}
 
     steps:
