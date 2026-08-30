@@ -52,7 +52,7 @@ jobs:
       HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
       HUS_CRON_WINDOW_S: "600"                 # 到点后持续抢机窗口（秒，默认10分钟）
       HUS_CRON_PREP_AHEAD_S: "240"             # 提前预选账号/区域时间（秒，需 < CF Turnstile token 有效期~300s）
-      HUS_CRON_PREFILL_AHEAD_S: "90"           # 提前预填表单时间（秒，到点只点提交）
+      HUS_CRON_PREFILL_AHEAD_S: "180"          # 提前预填表单时间（秒，到点只点提交）；建议 180(3分钟)，< CF Turnstile token 有效期~300s
 
       # ===== 状态 / 目录 / 日志 =====
       REG_STATE_FILE: reg_state.json           # 抢机状态文件（记录已抢到的手机号；改路径可重置"已抢"标记）
