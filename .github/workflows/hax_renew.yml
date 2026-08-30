@@ -106,7 +106,12 @@ jobs:
             sudo apt-get install -y /tmp/google-chrome.deb
             rm -f /tmp/google-chrome.deb
           fi
-          echo "CHROME_PATH=$(command -v google-chrome-stable)" >> "$GITHUB_ENV"
+          # 优先用真实二进制绝对路径（避免 wrapper 解析问题）
+          if [ -x /opt/google/chrome/google-chrome ]; then
+            echo "CHROME_PATH=/opt/google/chrome/google-chrome" >> "$GITHUB_ENV"
+          else
+            echo "CHROME_PATH=$(command -v google-chrome-stable)" >> "$GITHUB_ENV"
+          fi
           google-chrome-stable --version
 
       - name: 安装 Python 依赖
