@@ -133,12 +133,6 @@ jobs:
           echo "[INFO] sing-box $(./sing-box version | head -1)"
           echo "[INFO] 启动/接入由脚本在运行时根据 PROXY_CONTENT 自行决定（直连或代理）"
 
-      - name: 随机延迟
-        run: |
-          delay=$((RANDOM % 60))
-          echo "随机延迟: ${delay}秒"
-          sleep $delay
-
       - name: 执行创建（monitor 模式）
         working-directory: ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}
         run: |
