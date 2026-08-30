@@ -28,15 +28,11 @@ jobs:
       SOCKS_PORT: ${{ secrets.SOCKS_PORT || '50808' }}   # 本地 SOCKS5 端口（sing-box 监听），默认 50808
 
       # ===== 运行模式 =====
-      HUS_MODE: monitor                        # monitor=频道监听+定时抢机（到点/收到通知自动创建 VPS）
-      HUS_DISABLE_CHANNEL: "1"                 # 禁用 haxMonitor 频道监听线程，只跑定时抢机调度（避免频道转发打扰）
-      HAX_MONITOR_CHANNEL: haxMonitor          # 监听的库存通知频道用户名（与 hus_config.txt 对应）
+      HUS_MODE: monitor                        # monitor=定时抢机（按 HUS_CRON_TIMES 北京时间到点自动创建 VPS）
 
       # ===== 创建参数（非敏感，可按需调整）=====
       HUS_OS: Ubuntu 24                        # 默认操作系统（优先级低于 VPS_SPECS 指定的），如 Ubuntu 22/24、Debian 12
       HUS_DATACENTER: ""                       # 默认数据中心（留空=自动选第一个可用），优先级低于 VPS_SPECS 指定
-      HUS_MAX_WORKERS: "3"                     # 同时运行的账号工作线程数（每线程一个浏览器）
-      MAX_CREATE_RETRIES: "1"                  # 单次创建最大重试次数（1=不重试，失败即放弃）
       MAX_LOGIN_RETRIES: "1"                   # 登录失败最大重试次数
       DEBUG_FLAG: "0"                          # 调试模式（1=打印更多细节）
       HUS_HEADLESS: "false"                    # 浏览器是否无头（false=有头，GitHub Actions 用 Xvfb 虚拟屏）
@@ -57,20 +53,16 @@ jobs:
       # ===== 状态 / 目录 / 日志 =====
       REG_STATE_FILE: reg_state.json           # 抢机状态文件（记录已抢到的手机号；改路径可重置"已抢"标记）
       SCREENSHOT_DIR: output/screenshots       # 截图/调试图目录
-      MONITOR_DIR: output/monitor              # 监控模式转发保存目录
-      LOG_FILE: logs/hus_glab.log              # 日志文件名（实时写入，超 5MB 自动滚动）
-      LOG_KEEP: "30"                           # 旧日志最多保留个数（负数=不限制）
+      LOG_FILE: logs/hus_glab.log              # 日志文件名（实时写入，单文件不滚动）
       # 以下为创建后状态轮询（cron-monitor 创建时仍会用到）
       SCAN_TIMEOUT: "600"                      # 提交创建后轮询 VPS 状态最长等待（秒，等 ACTIVE/FAILED）
       PENDING_QUIET_SECONDS: "300"             # VPS 为 PENDING 时静默等待（秒）后再查一次状态
       NO_STOCK_REFRESH_S: "5"                  # DC 无库存时刷新创建页重新检查的间隔（秒）
-      # 注：STOCK_KEYWORDS / STOCK_GRAB_WINDOW_S / POLL_INTERVAL 属频道库存通知线，
-      # 本工作流 HUS_DISABLE_CHANNEL=1 不启用频道监听，故不在此配置（脚本用内置默认值）。
 
       # ===== 账号 / TG 凭据（敏感，来自 GitHub Secrets，覆盖 hus_config.txt）=====
       # 格式：phone,tg_bot_token,tg_chat_id[,tg_api_id,tg_api_hash,tg_session]（分号分隔多账号）
       #   phone=HAX 登录手机号(+国家码-号码)；tg_bot_token=通知 Bot；tg_chat_id=接收通知的 ID
-      #   tg_api_id/hash/session=该账号独立的 Telethon 用户会话（用于监听频道），可省略走全局
+      #   tg_api_id/hash/session=可选（脚本已移除频道监听，一般无需填写；保留以兼容账号字段）
       HUS_BATCH: ${{ secrets.HUS_BATCH }}
       # 可选 VPS 规格：phone,datacenter,os（分号分隔多账号）；指定区域+系统优先于 HUS_DATACENTER/HUS_OS
       VPS_SPECS: ${{ secrets.HUS_VPS_SPECS }}
@@ -104,7 +96,7 @@ jobs:
       - name: 安装系统依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb chromium ffmpeg unzip curl wget jq ca-certificates \
+          sudo apt-get install -y xvfb chromium unzip curl wget jq ca-certificates \
             libnss3 libgbm1 libxkbcommon0 libgtk-3-0 libatk1.0-0 libatk-bridge2.0-0 \
             libcups2 libdrm2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
             libpango-1.0-0 libcairo2 libxshmfence1
@@ -173,7 +165,6 @@ jobs:
             ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/logs/
             ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/sing-box.log
             ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/reg_state.json
-            ${{ github.repository_owner }}-${{ github.event.repository.name }}-${{ env.PROJECT_DIR }}/${{ env.MONITOR_DIR }}
           retention-days: 7
           if-no-files-found: warn
 
