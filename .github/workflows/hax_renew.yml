@@ -45,7 +45,7 @@ jobs:
       # 注意：cron-job.org 只负责“唤醒”本工作流（到点调 dispatch），真正到点创建由脚本内置
       # 调度器按此值执行。所以本值必须与 cron-job.org 的触发时间点保持一致！
       # 建议 cron-job.org 在每个时间点前 ~5 分钟触发，给脚本留 HUS_CRON_PREP_AHEAD_S 预填时间。
-      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,15:57,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
+      HUS_CRON_TIMES: 01:00,03:00,04:00,05:00,08:00,16:05,18:00,19:00,20:29   # 每天定时上线抢机的时间点（逗号分隔）
       HUS_CRON_WINDOW_S: "600"                 # 到点后持续抢机窗口（秒，默认10分钟）
       HUS_CRON_PREP_AHEAD_S: "240"             # 提前预选账号/区域时间（秒，需 < CF Turnstile token 有效期~300s）
       HUS_CRON_PREFILL_AHEAD_S: "180"          # 提前预填表单时间（秒，到点只点提交）；建议 180(3分钟)，< CF Turnstile token 有效期~300s
