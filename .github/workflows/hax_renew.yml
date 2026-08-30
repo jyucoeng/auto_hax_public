@@ -72,7 +72,7 @@ jobs:
       # 可选 VPS 规格：phone,datacenter,os（分号分隔多账号）；指定区域+系统优先于 HUS_DATACENTER/HUS_OS
       VPS_SPECS: ${{ secrets.HUS_VPS_SPECS }}
       # 可选：状态文件(reg_state.json) key 的加盐因子；设置了即使状态文件泄露也无法反解手机号。
-      # 本地用 decode_state.py 查看时需提供同一盐（建议放在 hus_config.txt 或环境变量，勿提交明文）
+      # 本地用 state_lookup.py 查看时需提供同一盐（建议放在 hus_config.txt 或环境变量，勿提交明文）
       HUS_STATE_SALT: ${{ secrets.HUS_STATE_SALT }}
 
     steps:
